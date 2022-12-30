@@ -21,17 +21,16 @@ export default class Puppet {
   }
 
   public async getMetaScreensot(id: string): Promise<Buffer | string> {
-    await this.page.goto(`https://bin.gart.sh/${id}`);
+    await this.page.goto(`https://bin.gart.sh/api/${id}/clean`);
     // wait for the page to load
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     return await this.page
       .screenshot({
         type: "webp",
         encoding: "binary",
         clip: {
-          x: 15,
-          y: 65,
-          width: 600,
+          x: 23,
+          y: 28,
+          width: 550,
           height: 170,
         },
       })

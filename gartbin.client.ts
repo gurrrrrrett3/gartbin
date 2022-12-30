@@ -1,4 +1,4 @@
-export default class GartBin {
+export default class Gartbin {
 
     public static baseUrl = "https://bin.gart.sh"
 
