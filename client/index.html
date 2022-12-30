@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/tokyo-night-dark.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <title>gartbin</title>
+  </head>
+
+  <!-- 
+    
+    Application design based off Hastebin https://github.com/toptal/haste-server/
+
+    way better paste bin than mine, use it instead
+
+-->
+
+  <body>
+    <div class="header">
+      <h1 onclick="main()">gartbin</h1>
+    </div>
+
+    <pre id="highlight" class="hljs" style="display: none" tabindex="0"><code></code></pre>
+    <textarea spellcheck="false" id="text"></textarea>
+
+    <div class="copy">
+      <button type="button" id="copy">Copy</button>
+    </div>
+
+    <div class="settings">
+      <div class="language">
+        <label for="language">Language</label>
+        <select name="language" id="language">
+          <option value="plaintext" selected>plaintext</option>
+          <option value="javascript">javascript</option>
+          <option value="typescript">typescript</option>
+          <option value="json">json</option>
+          <option value="python">python</option>
+          <option value="java">java</option>
+          <option value="c">c</option>
+          <option value="cpp">cpp</option>
+          <option value="csharp">csharp</option>
+          <option value="css">css</option>
+          <option value="html">html</option>
+          <option value="markdown">markdown</option>
+          <option value="php">php</option>
+          <option value="ruby">ruby</option>
+          <option value="sql">sql</option>
+          <option value="xml">xml</option>
+          <option value="bash">bash</option>
+          <option value="go">go</option>
+          <option value="kotlin">kotlin</option>
+          <option value="lua">lua</option>
+          <option value="perl">perl</option>
+          <option value="powershell">powershell</option>
+          <option value="rust">rust</option>
+          <option value="swift">swift</option>
+          <option value="diff">diff</option>
+          <option value="dockerfile">dockerfile</option>
+          <option value="ini">ini</option>
+          <option value="makefile">makefile</option>
+          <option value="nginx">nginx</option>
+          <option value="yaml">yaml</option>
+          <option value="apache">apache</option>
+          <option value="coffeescript">coffeescript</option>
+          <option value="cs">cs</option>
+          <option value="dart">dart</option>
+          <option value="elixir">elixir</option>
+          <option value="erlang">erlang</option>
+          <option value="haskell">haskell</option>
+          <option value="http">http</option>
+          <option value="less">less</option>
+          <option value="lisp">lisp</option>
+        </select>
+      </div>
+
+      <div class="password">
+        <label for="password">Password</label>
+        <input type="text" name="password" id="password" />
+      </div>
+
+      <div class="expiration">
+        <label for="expiration">Expiration</label>
+        <select name="expiration" id="expiration">
+          <option value="never" selected>never</option>
+          <option value="1">1 hour</option>
+          <option value="24">1 day</option>
+          <option value="168">1 week</option>
+          <option value="236">2 weeks</option>
+          <option value="720">1 month</option>
+          <option value="2160">3 months</option>
+          <option value="4320">6 months</option>
+          <option value="8760">1 year</option>
+        </select>
+      </div>
+
+      <div class="submit">
+        <button type="submit" id="save">Create Paste</button>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const textarea = document.getElementById("text");
+    const highlight = document.getElementById("highlight");
+
+    document.getElementById("language").addEventListener("change", function () {
+      textarea.className = `paste language-${this.value}`;
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+      if (window.location.pathname !== "/") {
+        document.querySelector(".settings").style.display = "none";
+        document.querySelector(".copy").style.display = "block";
+
+        // password is in query string
+        if (window.location.search) {
+          const password = window.location.search.split("=")[1];
+          document.getElementById("password").value = password;
+        }
+        // get paste
+        fetch(`/api${window.location.pathname}?password=${document.getElementById("password").value}`)
+          .then((res) => res.json())
+          .then((json) => {
+            textarea.value = unescapeHtml(json.content);
+            highlight.textContent = unescapeHtml(json.content);
+            highlight.className = `paste hljs language-${json.language}`;
+            hljs.highlightBlock(highlight);
+
+            textarea.style.display = "none";
+            highlight.style.display = "block";
+
+            document.getElementById("language").value = json.language;
+            textarea.className = `paste language-${json.language}`;
+          });
+      } 
+
+      textarea.className = `paste language-${document.getElementById("language").value}`;
+      textarea.focus();
+    });
+
+    document.getElementById("copy").addEventListener("click", function () {
+      navigator.clipboard.writeText(textarea.innerText);
+
+      this.innerText = "Copied!";
+      setTimeout(() => {
+        this.innerText = "Copy";
+      }, 1000);
+    });
+
+    document.getElementById("save").addEventListener("click", function () {
+      highlight.textContent = textarea.value;
+      hljs.highlightBlock(highlight);
+
+      textarea.style.display = "none";
+      highlight.style.display = "block";
+
+      // hide settings
+      document.querySelector(".settings").style.display = "none";
+
+      // show copy button
+      document.querySelector(".copy").style.display = "block";
+
+      const language = document.getElementById("language").value;
+      const password = document.getElementById("password").value;
+      const expiration = document.getElementById("expiration").value;
+
+      const data = {
+        language,
+        password,
+        expiration,
+        content: escapeHtml(textarea.value),
+      };
+
+      fetch("/api/paste", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            alert(data.error);
+            return;
+          }
+
+          window.history.pushState({}, "", `/${data.id}`);
+        });
+    });
+
+    function escapeHtml(input) {
+      return input.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+    }
+
+    function unescapeHtml(input) {
+      return input.replace(/&amp;/g, "&").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&quot;/g, '"');
+    }
+
+    function main() {
+      textarea.innerText = ""
+      highlight.innerText = ""
+      window.location.href = "/"
+    }
+  </script>
+</html>
