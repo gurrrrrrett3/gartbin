@@ -24,15 +24,20 @@
   <body>
     <div class="header">
       <h1 onclick="main()">gartbin</h1>
+      
+     <!--right alligned links-->
+
+      <div class="links">
+        <h2 id="copy">copy</h2>
+        <!--open source in new tab-->
+        <h2 id="source"><a href="
+          https://gart.sh/gartbin
+        " target="_blank">source</a></h2>
+      </div>
     </div>
 
     <pre id="highlight" class="hljs" style="display: none" tabindex="0"><code></code></pre>
     <textarea spellcheck="false" id="text"></textarea>
-
-    <div class="copy">
-      <button type="button" id="copy">Copy</button>
-    </div>
-
     <div class="settings">
       <div class="language">
         <label for="language">Language</label>
