@@ -123,7 +123,6 @@
 
       if (window.location.pathname !== "/") {
         document.querySelector(".settings").style.display = "none";
-        document.querySelector(".copy").style.display = "block";
 
         // password is in query string
         if (window.location.search) {
@@ -154,9 +153,9 @@
     document.getElementById("copy").addEventListener("click", function () {
       navigator.clipboard.writeText(textarea.innerText);
 
-      this.innerText = "Copied!";
+      this.innerText = "copied!";
       setTimeout(() => {
-        this.innerText = "Copy";
+        this.innerText = "copy";
       }, 1000);
     });
 
@@ -169,9 +168,6 @@
 
       // hide settings
       document.querySelector(".settings").style.display = "none";
-
-      // show copy button
-      document.querySelector(".copy").style.display = "block";
 
       const language = document.getElementById("language").value;
       const password = document.getElementById("password").value;
