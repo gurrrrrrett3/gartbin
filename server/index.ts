@@ -14,7 +14,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", apiRouter)
 
 app.get('/', (req, res) => {
-    res.sendFile(path.resolve("./client/index.html"));
+    const file = fs.readFileSync(path.resolve("./client/index.html"), "utf-8");
+    res.send(file.replace(/{{id}}/g, "new paste"));
 });
 
 app.get("/style.css", (req, res) => {
