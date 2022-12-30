@@ -32,6 +32,7 @@ export default class Puppet {
           y: 28,
           width: 550,
           height: 170,
+          scale: 2,
         },
       })
   }
