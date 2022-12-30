@@ -91,7 +91,7 @@ router.get("/:id/thumbnail", (req, res) => {
       res.setHeader("Content-Type", "image/webp").send(image);
     })
     .catch((err) => {
-      res.status(404).send("Paste not found");
+      res.status(404).send(err);
     });
 });
 
