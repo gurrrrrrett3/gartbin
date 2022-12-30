@@ -10,34 +10,17 @@
     />
     <link rel="stylesheet" href="style.css" />
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <title>gartbin</title>
+    <title>gartbin - {{id}}</title>
 
         <!-- meta tags for embeds -->
 
         <meta property="og:title" content="gartbin" />
         <meta property="og:description" content="a simple pastebin" />
-        <meta property="og:image" content="" />
-        <meta property="og:url" content="https://bin.gart.sh" />
+        <meta property="og:image" content="https://bin.gart.sh/api/{{id}}/thumbnail" />
+        <meta property="og:url" content="https://bin.gart.sh/{{id}}" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="gartbin" />
         <meta property="og:locale" content="en_US" />
-        <meta property="og:locale:alternate" content="en_US" />
-        <meta property="og:locale:alternate" content="en_GB" />
-        <meta property="og:locale:alternate" content="en_AU" />
-        <meta property="og:locale:alternate" content="en_CA" />
-        <meta property="og:locale:alternate" content="en_NZ" />
-
-    <!-- set the meta image to the thumbnail -->
-
-    <script>
-      // get the paste id from the url
-      const url = new URL(window.location.href);
-      const id = url.pathname.split("/")[1];
-      // set the meta image to the thumbnail
-      document.querySelector("meta[property='og:image']").content = `https://bin.gart.sh/api/${id}/thumbnail`;
-    </script>
-
-
 
   </head>
 
@@ -67,7 +50,7 @@
     <pre id="highlight" class="hljs" style="display: none" tabindex="0"><code></code></pre>
     <textarea spellcheck="false" id="text"></textarea>
 
-    
+
     <div class="settings">
       <div class="language">
         <label for="language">Language</label>
@@ -160,7 +143,7 @@
           document.getElementById("password").value = password;
         }
         // get paste
-        fetch(`/api${window.location.pathname}?password=${document.getElementById("password").value}`)
+        fetch(`/api/{{id}}?password=${document.getElementById("password").value}`)
           .then((res) => res.json())
           .then((json) => {
             textarea.value = unescapeHtml(json.content);

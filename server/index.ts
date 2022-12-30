@@ -1,4 +1,5 @@
 import express from 'express';
+import fs from 'fs';
 import path from 'path';
 import { db } from '..';
 import { Paste } from '../database/entities/paste.entity';
@@ -37,7 +38,8 @@ app.get("/:id", (req, res) => {
             res.sendFile(path.resolve("./client/password.html"))
             return
         } else {
-            res.sendFile(path.resolve("./client/index.html"))
+           const file = fs.readFileSync(path.resolve("./client/index.html"), "utf-8");
+              res.send(file.replace(/{{id}}/g, paste.id))
         }
     })
 
