@@ -45,7 +45,9 @@
      <!--right alligned links-->
 
       <div class="links">
-        <h2 id="copy">copy</h2>
+        <h2 id="copy" hidden>copy</h2>
+        <h2 id="clean" hidden>clean</h2>
+        <h2 id="raw" hidden>raw</h2>
         <!--open source in new tab-->
         <h2 id="source"><a href="
           https://gart.sh/gartbin
@@ -142,6 +144,9 @@
 
       if (window.location.pathname !== "/") {
         document.querySelector(".settings").style.display = "none";
+        document.getElementById("copy").removeAttribute("hidden");
+        document.getElementById("clean").removeAttribute("hidden");
+        document.getElementById("raw").removeAttribute("hidden");
 
         // password is in query string
         if (window.location.search) {
@@ -176,6 +181,14 @@
       setTimeout(() => {
         this.innerText = "copy";
       }, 1000);
+    });
+
+    document.getElementById("clean").addEventListener("click", function () {
+      window.location.pathname = "/{{id}}/clean";
+    });
+
+    document.getElementById("raw").addEventListener("click", function () {
+      window.location.pathname = "/{{id}}/raw";
     });
 
     document.getElementById("save").addEventListener("click", function () {

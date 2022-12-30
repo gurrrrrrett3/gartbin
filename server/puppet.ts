@@ -21,7 +21,7 @@ export default class Puppet {
   }
 
   public async getMetaScreensot(id: string): Promise<Buffer | string> {
-    await this.page.goto(`https://bin.gart.sh/api/${id}/clean`);
+    await this.page.goto(`https://bin.gart.sh/${id}/clean`);
     // wait for the page to load
     return await this.page
       .screenshot({

@@ -96,24 +96,4 @@ router.get("/:id/thumbnail", (req, res) => {
     });
 });
 
-router.get("/:id/clean", (req, res) => {
-    const id = req.params.id;
-
-    // get the paste from the database
-    db.getEntityManager()
-        .fork()
-        .findOne(Paste, { id })
-        .then((paste) => {
-
-            if (!paste) {
-                res.status(404).send("Paste not found")
-                return
-            }
-            const html = fs.readFileSync(path.resolve("./client/thumbnail.html"), "utf-8");
-            const content = html.replace("{{content}}", paste.content).replace("{{language}}", paste.language);
-            res.send(content);
-        })
-
-});
-
 export default router;
