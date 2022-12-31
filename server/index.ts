@@ -63,7 +63,14 @@ app.get("/:id/clean", (req, res) => {
         return;
       }
       const html = fs.readFileSync(path.resolve("./client/thumbnail.html"), "utf-8");
-      const content = html.replace("{{content}}", paste.content).replace("{{language}}", paste.language);
+      const content = html
+        .replace("{{content}}", paste.content)
+        .replace("{{language}}", paste.language)
+        .replace("\\n", "<br />")
+        .replace(/&amp;/g, "&")
+        .replace(/&gt;/g, ">")
+        .replace(/&lt;/g, "<")
+        .replace(/&quot;/g, '"');
       res.send(content);
     });
 });
@@ -81,7 +88,14 @@ app.get("/:id/raw", (req, res) => {
         return;
       }
 
-      res.setHeader("Content-Type", "text/plain").send(paste.content);
+      res.setHeader("Content-Type", "text/plain").send(
+        paste.content
+          .replace("\\n", "<br />")
+          .replace(/&amp;/g, "&")
+          .replace(/&gt;/g, ">")
+          .replace(/&lt;/g, "<")
+          .replace(/&quot;/g, '"')
+      );
     });
 });
 
