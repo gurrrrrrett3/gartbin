@@ -9,7 +9,7 @@ router.get("/", (req, res) => {
   res.sendFile(path.resolve("./client/api.html"));
 });
 
-router.post("/paste", (req, res) => {
+router.post("/paste", async (req, res) => {
   const { content, language, expiration, password } = req.body as {
     content: string; // content of the paste
     language: string; // language of the paste
@@ -39,7 +39,7 @@ router.post("/paste", (req, res) => {
   console.log(paste);
 
   // save the paste to the database
-  db.getEntityManager().fork().persistAndFlush(paste);
+  await db.getEntityManager().fork().persistAndFlush(paste);
 
   // send the id of the paste to the user
   res.json({ id });
