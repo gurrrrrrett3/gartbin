@@ -159,7 +159,7 @@
           .then((json) => {
 
             const unescaped = unescapeHtml(json.content);
-            const fixedNewlines = unescaped.replace(/\\n/g, "<br/>");
+            const fixedNewlines = unescaped.replace(/\\n/g, "\n");
 
             textarea.value = fixedNewlines
             highlight.textContent = fixedNewlines

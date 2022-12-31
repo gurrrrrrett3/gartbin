@@ -66,7 +66,7 @@ app.get("/:id/clean", (req, res) => {
       const content = html
         .replace("{{content}}", paste.content)
         .replace("{{language}}", paste.language)
-        .replace("\\n", "<br />")
+        .replace("\\n", "\n")
         .replace(/&amp;/g, "&")
         .replace(/&gt;/g, ">")
         .replace(/&lt;/g, "<")
@@ -90,7 +90,7 @@ app.get("/:id/raw", (req, res) => {
 
       res.setHeader("Content-Type", "text/plain").send(
         paste.content
-          .replace("\\n", "<br />")
+          .replace("\\n", "\n")
           .replace(/&amp;/g, "&")
           .replace(/&gt;/g, ">")
           .replace(/&lt;/g, "<")
