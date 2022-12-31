@@ -157,8 +157,12 @@
         fetch(`/api/{{id}}?password=${document.getElementById("password").value}`)
           .then((res) => res.json())
           .then((json) => {
-            textarea.value = unescapeHtml(json.content);
-            highlight.textContent = unescapeHtml(json.content);
+
+            const unescaped = unescapeHtml(json.content);
+            const fixedNewlines = unescaped.replace(/\\r\\n/g, "<br/>");
+
+            textarea.value = fixedNewlines
+            highlight.textContent = fixedNewlines
             highlight.className = `paste hljs language-${json.language}`;
             hljs.highlightBlock(highlight);
 
