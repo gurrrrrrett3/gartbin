@@ -49,10 +49,10 @@ router.post("/paste", async (req, res) => {
         success: false,
         message: "Internal server error",
       });
-
-      // send the id of the paste to the user
-      res.json({ id });
     });
+
+    // send the id of the paste to the user
+    res.json({ id });
 });
 
 router.get("/:id", (req, res) => {
