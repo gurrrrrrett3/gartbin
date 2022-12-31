@@ -6,7 +6,11 @@ export default class Gartbin {
         language?: string,
         expiresAt?: Date,
         password?: string
-    } = {}): Promise<string> {
+    } = {
+        language: "plaintext",
+        expiresAt: undefined,
+        password: undefined
+    }): Promise<string> {
 
         const res = await fetch(`${this.baseUrl}/api/paste`, {
             method: "POST",
