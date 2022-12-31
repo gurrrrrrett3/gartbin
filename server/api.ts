@@ -30,7 +30,7 @@ router.post("/paste", async (req, res) => {
   paste.password = password;
 
   // if the paste has an expiration time, set it
-  if (expiration !== "never") {
+  if (expiration !== "never" && expiration !== "" && expiration !== "0" && expiration !== undefined && expiration) {
     paste.expiresAt = new Date(Date.now() + parseInt(expiration) * 60 * 60 * 1000);
   } else {
     paste.expiresAt = new Date(0);
@@ -39,10 +39,20 @@ router.post("/paste", async (req, res) => {
   console.log(paste);
 
   // save the paste to the database
-  await db.getEntityManager().fork().persistAndFlush(paste);
+  await db
+    .getEntityManager()
+    .fork()
+    .persistAndFlush(paste)
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
 
-  // send the id of the paste to the user
-  res.json({ id });
+      // send the id of the paste to the user
+      res.json({ id });
+    });
 });
 
 router.get("/:id", (req, res) => {

@@ -23,7 +23,9 @@ export class Paste {
     @Property()
     views: number = 0
 
-    @Property()
+    @Property({
+        nullable: true
+    })
     password?: string
 
 }
