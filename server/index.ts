@@ -11,6 +11,40 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// global middleware
+app.use((req, res, next) => {
+
+  // headers
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  
+  // xss
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+
+  // xfo
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+
+  // nosniff
+  res.setHeader("X-Content-Type-Options", "nosniff");
+
+  // hsts
+  res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+
+  // referrer
+  res.setHeader("Referrer-Policy", "no-referrer");
+
+  // :)
+  res.setHeader("X-Powered-By", "gart");
+  res.setHeader("X-RIP", "Terry A. Davis | God's greatest programmer");
+
+  // logger
+  Logger.info("Request", `[${Date.now()}] ${req.method} ${req.path}`);
+
+  next();
+})
+
 app.use("/api", apiRouter);
 
 app.get("/", (req, res) => {
@@ -64,6 +98,10 @@ app.get("/:id", (req, res) => {
             res.send(Buffer.from(data, "base64"));
             return;
           }
+
+          // add view count
+          paste.views++;
+          db.getEntityManager().persistAndFlush(paste);
 
           const file = fs.readFileSync(path.resolve("./client/index.html"), "utf-8");
           res.send(file.replace(/{{id}}/g, paste.id));
