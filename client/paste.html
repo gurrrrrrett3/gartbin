@@ -10,20 +10,20 @@
     />
     <link rel="stylesheet" href="style.css" />
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <title>gartbin - New Paste</title>
+    <title>gartbin - {{id}}</title>
 
         <!-- meta tags for embeds -->
 
         <meta property="og:title" content="gartbin" />
         <meta property="og:description" content="a simple pastebin" />
-        <meta property="og:image" content="https://bin.gart.sh/thumbnail" />
-        <meta property="og:url" content="https://bin.gart.sh/" />
+        <meta property="og:image" content="https://bin.gart.sh/api/{{id}}/thumbnail" />
+        <meta property="og:url" content="https://bin.gart.sh/{{id}}" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="gartbin" />
         <meta property="og:locale" content="en_US" />
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:img:src" content="https://bin.gart.sh/thumbnail" />
+        <meta name="twitter:img:src" content="https://bin.gart.sh/api/{{id}}/thumbnail" />
         <meta name="twitter:img:alt" content="gartbin" />
         <meta name="twitter:image:width" content="1100" />
         <meta name="twitter:image:height" content="340" />
@@ -156,7 +156,7 @@
           document.getElementById("password").value = password;
         }
         // get paste
-        fetch(`/api/gart?password=${document.getElementById("password").value}`)
+        fetch(`/api/{{id}}?password=${document.getElementById("password").value}`)
           .then((res) => res.json())
           .then((json) => {
 
@@ -190,11 +190,11 @@
     });
 
     document.getElementById("clean").addEventListener("click", function () {
-      window.location.pathname = "/gart/clean";
+      window.location.pathname = "/{{id}}/clean";
     });
 
     document.getElementById("raw").addEventListener("click", function () {
-      window.location.pathname = "/gart/raw";
+      window.location.pathname = "/{{id}}/raw";
     });
 
     document.getElementById("save").addEventListener("click", function () {
@@ -232,7 +232,7 @@
             return;
           }
 
-          window.location.href = `/${data.id}`;
+          window.history.pushState({}, "", `/${data.id}`);
         });
     });
 

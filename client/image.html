@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/tokyo-night-dark.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <title>gartbin - {{id}}</title>
+
+        <!-- meta tags for embeds -->
+
+        <meta property="og:title" content="gartbin" />
+        <meta property="og:description" content="a simple pastebin" />
+        <meta property="og:image" content="https://bin.gart.sh/api/{{id}}/thumbnail" />
+        <meta property="og:url" content="https://bin.gart.sh/{{id}}" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="gartbin" />
+        <meta property="og:locale" content="en_US" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:img:src" content="https://bin.gart.sh/api/{{id}}/thumbnail" />
+        <meta name="twitter:img:alt" content="gartbin" />
+        <meta name="twitter:image:width" content="1100" />
+        <meta name="twitter:image:height" content="340" />
+
+        <link rel="icon" href="/favicon" />
+
+  </head>
+
+  <!-- 
+    
+    Application design based off Hastebin https://github.com/toptal/haste-server/
+
+    way better paste bin than mine, use it instead
+
+-->
+
+  <body>
+    <div class="header">
+      <h1 onclick="main()">gartbin</h1>
+      
+     <!--right alligned links-->
+
+      <div class="links">
+        <!--open source in new tab-->
+        <h2 id="source"><a href="
+          https://gart.sh/gartbin
+        " target="_blank">source</a></h2>
+      </div>
+    </div>
+
+    <img src="{{data}}" alt="image" />
+
+  </body>
+</html>

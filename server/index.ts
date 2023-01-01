@@ -35,8 +35,7 @@ app.use((req, res, next) => {
 app.use("/api", apiRouter);
 
 app.get("/", (req, res) => {
-  const file = fs.readFileSync(path.resolve("./client/index.html"), "utf-8");
-  res.send(file.replace(/{{id}}/g, "new paste"));
+  res.sendFile(path.resolve("./client/index.html"));
 });
 
 app.get("/style.css", (req, res) => {
@@ -69,6 +68,10 @@ app.get("/:id", (req, res) => {
         res.sendFile(path.resolve("./client/password.html"));
         return;
       } else {
+         // add view count
+         paste.views++;
+         db.getEntityManager().fork().persistAndFlush(paste);
+
         // special cases for languages
 
         if (paste.language.startsWith("image")) {
@@ -79,17 +82,13 @@ app.get("/:id", (req, res) => {
 
           if (paste.content.includes(delim)) {
             const [filename, data] = paste.content.split(delim);
-            res.setHeader("Content-Type", contentType);
-            res.send(Buffer.from(data, "base64"));
+            const file = fs.readFileSync(path.resolve("./client/image.html"), "utf-8");
+            res.send(file.replace(/{{id}}/g, paste.id).replace(/{{data}}/g, `data:${contentType};base64,${data}`));
             return;
           }
         }
 
-        // add view count
-        paste.views++;
-        db.getEntityManager().persistAndFlush(paste);
-
-        const file = fs.readFileSync(path.resolve("./client/index.html"), "utf-8");
+        const file = fs.readFileSync(path.resolve("./client/paste.html"), "utf-8");
         res.send(file.replace(/{{id}}/g, paste.id));
       }
     });
