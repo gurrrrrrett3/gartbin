@@ -23,7 +23,7 @@ app.get("/style.css", (req, res) => {
 });
 
 
-app.get("/favicon.ico", (req, res) => {
+app.get("/favicon", (req, res) => {
   res.sendFile(path.resolve("./client/favicon.ico"));
 });
 
