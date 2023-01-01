@@ -74,7 +74,7 @@ router.post("/:id/end", async (req, res) => {
     paste.content = content;
     paste.language = req.body.language;
     paste.password = req.body.password;
-    paste.expiresAt = req.body.expiration;
+    paste.expiresAt = new Date(Date.now() + parseInt(req.body.expiration) * 60 * 60 * 1000);
 
     res.json({
         success: true,

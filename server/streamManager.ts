@@ -27,8 +27,7 @@ export class Stream {
     public id: string = Math.random().toString(36).substring(2, 6);
 
     public write(chunk: string, index: number): void {
-    
-
+        
         if (index > this.chunks.length) {
                 //create empty chunks
             for (let i = this.chunks.length; i < index; i++) {
