@@ -22,6 +22,12 @@ app.get("/style.css", (req, res) => {
   res.sendFile(path.resolve("./client/style.css"));
 });
 
+
+app.get("/favicon.ico", (req, res) => {
+  res.sendFile(path.resolve("./client/favicon.ico"));
+});
+
+
 app.get("/:id", (req, res) => {
   const id = req.params.id;
 
@@ -113,10 +119,6 @@ app.get("/:id/raw", (req, res) => {
           .replace(/&quot;/g, '"')
       );
     });
-});
-
-app.get("/favicon.ico", (req, res) => {
-  res.sendFile(path.resolve("./client/favicon.ico"));
 });
 
 app.listen(3003, () => {
