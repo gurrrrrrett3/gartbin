@@ -1,18 +1,14 @@
 import { Router } from "express";
 import fs from "fs";
 import path from "path";
-import multer from "multer";
 import { db, puppet } from "..";
 import { Paste } from "../database/entities/paste.entity";
+
+import StreamRouter from "./stream";
+
 const router = Router();
 
-const upload = multer({
-  dest: path.resolve("./uploads"),
-  limits: {
-    // 8MB
-    fileSize: 8 * 1024 * 1024,
-  },
-});
+router.use("/stream", StreamRouter)
 
 router.get("/", (req, res) => {
   res.sendFile(path.resolve("./client/api.html"));
@@ -39,13 +35,7 @@ router.post("/paste", async (req, res) => {
   paste.password = password;
 
   // if the paste has an expiration time, set it
-  if (
-    expiration !== "never" &&
-    expiration !== "" &&
-    expiration !== "0" &&
-    expiration !== undefined &&
-    expiration
-  ) {
+  if (expiration !== "never" && expiration !== "" && expiration !== "0" && expiration !== undefined && expiration) {
     paste.expiresAt = new Date(Date.now() + parseInt(expiration) * 60 * 60 * 1000);
   } else {
     paste.expiresAt = new Date(0);
@@ -66,8 +56,8 @@ router.post("/paste", async (req, res) => {
       });
     });
 
-  // send the id of the paste to the user
-  res.json({ id });
+    // send the id of the paste to the user
+    res.json({ id });
 });
 
 router.get("/:id", (req, res) => {
@@ -118,49 +108,6 @@ router.get("/:id/thumbnail", (req, res) => {
     })
     .catch((err) => {
       res.status(404).send(err);
-    });
-});
-
-router.post("/upload", upload.single("file"), (req, res) => {
-  const file = req.file;
-  const id = Math.random().toString(36).substring(2, 6);
-
-  if (!file) {
-    res.status(400).json({
-      success: false,
-      message: "No file provided",
-    });
-    return;
-  }
-
-  // convert the file to a base64 string
-  const data = ("data:" +
-    file.mimetype +
-    ";base64," +
-    fs.readFileSync(path.resolve("./uploads/" + file.filename), "base64")) as string;
-
-  // delete the file from the uploads folder
-  fs.unlinkSync(path.resolve("./uploads/" + file.filename));
-
-  // create a new paste entity
-  const paste = new Paste();
-  paste.id = id;
-  paste.content = data;
-  paste.language = `image/${file.mimetype.split("/")[1]}/base64?name=${file.originalname}`;
-
-  // save the paste to the database
-  db.getEntityManager()
-    .fork()
-    .persistAndFlush(paste)
-    .then(() => {
-      res.json({ id });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({
-        success: false,
-        message: "Internal server error",
-      });
     });
 });
 
