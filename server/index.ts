@@ -50,7 +50,7 @@ app.get("/:id", (req, res) => {
           //image:png/base64
 
           const contentType = paste.language.split(":")[1];
-          const delim = "ⓢ¢€ⓢ¢";
+          const delim = ";";
 
           if (paste.content.includes(delim)) {
             const [filename, data] = paste.content.split(delim);
@@ -113,6 +113,10 @@ app.get("/:id/raw", (req, res) => {
           .replace(/&quot;/g, '"')
       );
     });
+});
+
+app.get("/favicon.ico", (req, res) => {
+  res.sendFile(path.resolve("./client/favicon.ico"));
 });
 
 app.listen(3003, () => {
