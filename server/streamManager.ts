@@ -14,6 +14,10 @@ export default class StreamManager {
         return stream;
     }
 
+    public deleteStream(id: string): void {
+        this.streams.delete(id);
+    }
+
 }
 
 export class Stream {
@@ -22,8 +26,18 @@ export class Stream {
     public ended: boolean = false;
     public id: string = Math.random().toString(36).substring(2, 6);
 
-    public write(chunk: string): void {
-        this.chunks.push(chunk);
+    public write(chunk: string, index: number): void {
+    
+
+        if (index > this.chunks.length) {
+                //create empty chunks
+            for (let i = this.chunks.length; i < index; i++) {
+                this.chunks.push("");
+            }
+        }
+
+        this.chunks[index] = chunk;
+
     }
 
     public end(): string {

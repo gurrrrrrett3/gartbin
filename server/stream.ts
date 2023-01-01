@@ -15,6 +15,8 @@ router.get('/', (req, res) => {
         chunkSize: StreamManager.STEAM_CHUNK_SIZE,
         maxChunks: Math.floor(StreamManager.MAX_SIZE / StreamManager.STEAM_CHUNK_SIZE)
     })
+
+    console.log("Stream created", stream.id)
 })
 
 router.post("/:id", (req, res) => {
@@ -31,6 +33,7 @@ router.post("/:id", (req, res) => {
     }
 
     const chunk = req.body.content;
+    const index = req.body.index;
 
     if (chunk.length > StreamManager.STEAM_CHUNK_SIZE) {
         res.status(400).json({
@@ -40,12 +43,14 @@ router.post("/:id", (req, res) => {
         return
     }
 
-    stream.write(chunk);
+    stream.write(chunk, index);
 
     res.json({
         success: true,
         totalSize: stream.chunks.length * StreamManager.STEAM_CHUNK_SIZE,
     })
+
+    console.log("Chunk written", stream.id, stream.chunks.length)
 })
 
 router.post("/:id/end", async (req, res) => {
@@ -71,17 +76,21 @@ router.post("/:id/end", async (req, res) => {
     paste.password = req.body.password;
     paste.expiresAt = req.body.expiration;
 
-    
-    await db
-        .getEntityManager()
-        .fork()
-        .persistAndFlush(paste)
-
     res.json({
         success: true,
         totalSize: content.length,
         pasteId: paste.id
     })
+
+    streamManager.deleteStream(id);
+
+    await db
+    .getEntityManager()
+    .fork()
+    .persistAndFlush(paste)
+
+    console.log("Stream ended", stream.id, content.length)
+    console.log("Paste created", paste.id)
 })
 
 router.post

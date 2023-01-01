@@ -44,8 +44,24 @@ app.get("/:id", (req, res) => {
         res.sendFile(path.resolve("./client/password.html"));
         return;
       } else {
-        const file = fs.readFileSync(path.resolve("./client/index.html"), "utf-8");
-        res.send(file.replace(/{{id}}/g, paste.id));
+        // special cases for languages
+
+        if (paste.language.startsWith("image")) {
+          //image:png/base64
+
+          const contentType = paste.language.split(":")[1];
+          const delim = "ⓢ¢€ⓢ¢";
+
+          if (paste.content.includes(delim)) {
+            const [filename, data] = paste.content.split(delim);
+            res.setHeader("Content-Type", contentType);
+            res.send(Buffer.from(data, "base64"));
+            return;
+          }
+
+          const file = fs.readFileSync(path.resolve("./client/index.html"), "utf-8");
+          res.send(file.replace(/{{id}}/g, paste.id));
+        }
       }
     });
 });
