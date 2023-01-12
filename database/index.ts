@@ -2,6 +2,7 @@ import { MikroORM, PostgreSqlDriver, EntityManager } from "@mikro-orm/postgresql
 import { TsMorphMetadataProvider } from "@mikro-orm/reflection";
 import Logger from "../utils/logger";
 import { Paste } from "./entities/paste.entity";
+import CleanDatabaseEvent from "./events/cleanDatabaseEvent";
 
 export default class Database {
 
@@ -36,6 +37,12 @@ export default class Database {
         this.em = orm.em
 
         Logger.info("Database", "Database initialized")
+
+        // schedule the clean database event
+        
+        setInterval(async () => {
+            await CleanDatabaseEvent.run()
+        }, 3600000 ) // 1 hour
     }
 
     public async close(): Promise<void> {
