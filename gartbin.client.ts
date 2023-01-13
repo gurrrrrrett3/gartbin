@@ -7,10 +7,12 @@ export default class Gartbin {
       language?: string;
       expiresAt?: Date;
       password?: string;
+      allowUpdate?: boolean;
     } = {
       language: "plaintext",
       expiresAt: undefined,
       password: undefined,
+      allowUpdate: false,
     }
   ): Promise<string> {
     const res = await fetch(`${this.baseUrl}/api/paste`, {
@@ -110,5 +112,36 @@ export default class Gartbin {
             return json.pasteId as string;
           });
       });
+  }
+
+  public static async updatePaste(
+    id: string,
+    content: string,
+    options: {
+      password?: string;
+    } = {
+      password: undefined,
+    }
+  ): Promise<void> {
+    const res = await fetch(`${this.baseUrl}/api/paste/${id}/update`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        content,
+        password: options.password,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to update paste");
+    }
+
+    const json = await res.json();
+
+    if (json.error) {
+      throw new Error(json.message);
+    }
   }
 }

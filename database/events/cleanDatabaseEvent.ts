@@ -9,6 +9,7 @@ export default class CleanDatabaseEvent {
       .find(Paste, {
         expiresAt: {
           $lt: new Date(),
+          $ne: new Date(0)
         },
       });
 

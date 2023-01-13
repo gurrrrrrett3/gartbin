@@ -15,11 +15,12 @@ router.get("/", (req, res) => {
 });
 
 router.post("/paste", async (req, res) => {
-  const { content, language, expiration, password } = req.body as {
+  const { content, language, expiration, password, allowUpdate } = req.body as {
     content: string; // content of the paste
     language: string; // language of the paste
     expiration: string; // time in hours until the paste expires, or "never"
     password?: string; // password to access the paste
+    allowUpdate?: boolean; // allow the paste to be updated
   };
 
   // generate a random id for the paste
@@ -33,6 +34,7 @@ router.post("/paste", async (req, res) => {
   paste.content = content;
   paste.language = language;
   paste.password = password;
+  paste.allowUpdate = allowUpdate;
 
   // if the paste has an expiration time, set it
   if (expiration !== "never" && expiration !== "" && expiration !== "0" && expiration !== undefined && expiration) {
@@ -59,6 +61,73 @@ router.post("/paste", async (req, res) => {
     // send the id of the paste to the user
     res.json({ id });
 });
+
+router.post("/paste/:id/update", async (req, res) => {
+
+  const id = req.params.id;
+
+  const { content, password } = req.body as {
+    content: string; // content of the paste
+    password?: string; // password to access the paste
+  };
+
+  // get the paste from the database
+  const paste = await db
+    .getEntityManager()
+    .fork()
+    .findOne(Paste, { id })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    })
+
+  if (!paste) {
+    res.status(404).json({
+      success: false,
+      message: "Paste not found",
+    });
+    return;
+  }
+
+  if (!paste.allowUpdate) {
+    res.status(403).json({
+      success: false,
+      message: "Paste does not allow updates",
+    });
+    return;
+  }
+
+  if (paste.password && paste.password !== password) {
+    res.status(403).json({
+      success: false,
+      message: "Incorrect password",
+    });
+    return;
+  }
+
+  paste.content = content;
+
+  await db
+    .getEntityManager()
+    .fork()
+    .persistAndFlush(paste)
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    })
+
+  res.json({
+    success: true,
+    message: "Paste updated",
+  })
+  
+})
 
 router.get("/:id", (req, res) => {
   const id = req.params.id;

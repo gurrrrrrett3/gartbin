@@ -28,4 +28,9 @@ export class Paste {
     })
     password?: string
 
+    @Property({
+        nullable: true
+    })
+    allowUpdate?: boolean = false
+
 }
