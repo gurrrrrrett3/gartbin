@@ -132,6 +132,25 @@ app.get("/:id/raw", (req, res) => {
         return;
       }
 
+     if (paste.password && req.query.password !== paste.password) {
+        res.status(401).send("Unauthorized");
+        return;
+      }
+
+      if (paste.language.startsWith("image")) {
+        //image:png/base64
+
+        const contentType = paste.language.split(":")[1];
+        const delim = ";";
+
+        if (paste.content.includes(delim)) {
+          const [filename, data] = paste.content.split(delim);
+          res.setHeader("Content-Type", contentType);
+          res.send(Buffer.from(data, "base64"));
+          return;
+        }
+      } 
+
       res.setHeader("Content-Type", "text/plain").send(
         paste.content
           .replace("\\n", "\u000A")
