@@ -8,7 +8,7 @@ import StreamRouter from "./stream";
 
 const router = Router();
 
-router.use("/stream", StreamRouter)
+router.use("/stream", StreamRouter);
 
 router.get("/", (req, res) => {
   res.sendFile(path.resolve("./client/api.html"));
@@ -37,7 +37,13 @@ router.post("/paste", async (req, res) => {
   paste.allowUpdate = allowUpdate;
 
   // if the paste has an expiration time, set it
-  if (expiration !== "never" && expiration !== "" && expiration !== "0" && expiration !== undefined && expiration) {
+  if (
+    expiration !== "never" &&
+    expiration !== "" &&
+    expiration !== "0" &&
+    expiration !== undefined &&
+    expiration
+  ) {
     paste.expiresAt = new Date(Date.now() + parseInt(expiration) * 60 * 60 * 1000);
   } else {
     paste.expiresAt = new Date(0);
@@ -58,12 +64,11 @@ router.post("/paste", async (req, res) => {
       });
     });
 
-    // send the id of the paste to the user
-    res.json({ id });
+  // send the id of the paste to the user
+  res.json({ id });
 });
 
 router.post("/paste/:id/update", async (req, res) => {
-
   const id = req.params.id;
 
   const { content, password } = req.body as {
@@ -82,7 +87,7 @@ router.post("/paste/:id/update", async (req, res) => {
         success: false,
         message: "Internal server error",
       });
-    })
+    });
 
   if (!paste) {
     res.status(404).json({
@@ -120,14 +125,13 @@ router.post("/paste/:id/update", async (req, res) => {
         success: false,
         message: "Internal server error",
       });
-    })
+    });
 
   res.json({
     success: true,
     message: "Paste updated",
-  })
-  
-})
+  });
+});
 
 router.get("/:id", (req, res) => {
   const id = req.params.id;
@@ -170,56 +174,45 @@ router.get("/:id", (req, res) => {
 });
 
 router.get("/:id/thumbnail", (req, res) => {
+  const id = req.params.id;
 
-  const id = req.params.id
-
-   // get the paste from the database
-   db.getEntityManager()
-   .fork()
-   .findOne(Paste, { id })
-   .then((paste) => {
-     if (!paste) {
-       res.status(404).json({
-         success: false,
-         message: "Paste not found",
-       });
-       return;       
+  // get the paste from the database
+  db.getEntityManager()
+    .fork()
+    .findOne(Paste, { id })
+    .then((paste) => {
+      if (!paste) {
+        res.status(404).json({
+          success: false,
+          message: "Paste not found",
+        });
+        return;
       }
       if (paste.language.startsWith("image")) {
-
-          //image:png/base64
+        //image:png/base64
         const contentType = paste.language.split(":")[1];
-          const delim = ";";
+        const delim = ";";
 
-          if (paste.content.includes(delim)) {
-            const [filename, data] = paste.content.split(delim);
-            
-            const buffer = Buffer.from(data, "base64");
-            res.setHeader("Content-Type", contentType).send(buffer);
-          
-          } else {
+        if (paste.content.includes(delim)) {
+          const [filename, data] = paste.content.split(delim);
 
-            const buffer = Buffer.from(paste.content, "base64");
-            res.setHeader("Content-Type", contentType).send(buffer);
-
-          }
+          const buffer = Buffer.from(data, "base64");
+          res.setHeader("Content-Type", contentType).send(buffer);
+        } else {
+          const buffer = Buffer.from(paste.content, "base64");
+          res.setHeader("Content-Type", contentType).send(buffer);
+        }
       } else {
         puppet
-        .getMetaScreensot(req.params.id)
-        .then((image) => {
-          res.setHeader("Content-Type", "image/webp").send(image);
-        })
-        .catch((err) => {
-          res.status(404).send(err);
-        });
+          .getMetaScreensot(req.params.id)
+          .then((image) => {
+            res.setHeader("Content-Type", "image/webp").send(image);
+          })
+          .catch((err) => {
+            res.status(404).send(err);
+          });
       }
-    })
-
-
-     
-       
-
- 
+    });
 });
 
 export default router;
