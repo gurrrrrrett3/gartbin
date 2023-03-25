@@ -12,24 +12,23 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <title>gartbin - {{id}}</title>
 
-        <!-- meta tags for embeds -->
+    <!-- meta tags for embeds -->
 
-        <meta property="og:title" content="gartbin" />
-        <meta property="og:description" content="a simple pastebin" />
-        <meta property="og:image" content="https://bin.gart.sh/api/{{id}}/thumbnail" />
-        <meta property="og:url" content="https://bin.gart.sh/{{id}}" />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="gartbin" />
-        <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="gartbin" />
+    <meta property="og:description" content="a simple pastebin" />
+    <meta property="og:image" content="https://bin.gart.sh/api/{{id}}/thumbnail" />
+    <meta property="og:url" content="https://bin.gart.sh/{{id}}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="gartbin" />
+    <meta property="og:locale" content="en_US" />
 
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:img:src" content="https://bin.gart.sh/api/{{id}}/thumbnail" />
-        <meta name="twitter:img:alt" content="gartbin" />
-        <meta name="twitter:image:width" content="1100" />
-        <meta name="twitter:image:height" content="340" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:img:src" content="https://bin.gart.sh/api/{{id}}/thumbnail" />
+    <meta name="twitter:img:alt" content="gartbin" />
+    <meta name="twitter:image:width" content="1100" />
+    <meta name="twitter:image:height" content="340" />
 
-        <link rel="icon" href="/favicon" />
-
+    <link rel="icon" href="/favicon" />
   </head>
 
   <!-- 
@@ -43,23 +42,32 @@
   <body>
     <div class="header">
       <h1 onclick="main()">gartbin</h1>
-      
-     <!--right alligned links-->
+
+      <!--right alligned links-->
 
       <div class="links">
         <h2 id="copy" hidden>copy</h2>
         <h2 id="clean" hidden>clean</h2>
         <h2 id="raw" hidden>raw</h2>
         <!--open source in new tab-->
-        <h2 id="source"><a href="
+        <h2 id="source">
+          <a
+            href="
           https://gart.sh/gartbin
-        " target="_blank">source</a></h2>
+        "
+            target="_blank"
+            >source</a
+          >
+        </h2>
+
+        <h2 class="experimental update" hidden>
+          <button type="submit" id="update" style="background-color: #ff0000">Update Paste</button>
+        </h2>
       </div>
     </div>
 
     <pre id="highlight" class="hljs" style="display: none" tabindex="0"><code></code></pre>
     <textarea spellcheck="false" id="text"></textarea>
-
 
     <div class="settings">
       <div class="language">
@@ -143,7 +151,6 @@
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-
       if (window.location.pathname !== "/") {
         document.querySelector(".settings").style.display = "none";
         document.getElementById("copy").removeAttribute("hidden");
@@ -159,12 +166,11 @@
         fetch(`/api/{{id}}?password=${document.getElementById("password").value}`)
           .then((res) => res.json())
           .then((json) => {
-
             const unescaped = unescapeHtml(json.content);
             const fixedNewlines = unescaped.replace(/\\n/g, "\n");
 
-            textarea.value = fixedNewlines
-            highlight.textContent = fixedNewlines
+            textarea.value = fixedNewlines;
+            highlight.textContent = fixedNewlines;
             highlight.className = `paste hljs language-${json.language}`;
             hljs.highlightElement(highlight);
 
@@ -174,7 +180,7 @@
             document.getElementById("language").value = json.language;
             textarea.className = `paste language-${json.language}`;
           });
-      } 
+      }
 
       textarea.className = `paste language-${document.getElementById("language").value}`;
       textarea.focus();
@@ -241,13 +247,50 @@
     }
 
     function unescapeHtml(input) {
-      return input.replace(/&amp;/g, "&").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&quot;/g, '"');
+      return input
+        .replace(/&amp;/g, "&")
+        .replace(/&gt;/g, ">")
+        .replace(/&lt;/g, "<")
+        .replace(/&quot;/g, '"');
     }
 
     function main() {
-      textarea.innerText = ""
-      highlight.innerText = ""
-      window.location.href = "/"
+      textarea.innerText = "";
+      highlight.innerText = "";
+      window.location.href = "/";
     }
+
+    function experimental() {
+      let id = window.prompt("Paste Transfer: Enter the ID that you want to overwrite this into.");
+      if (id === null) return;
+
+      fetch(`/api/paste/${id}/update`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: escapeHtml(textarea.value),
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success = false) {
+            alert(data.message);
+            return;
+          }
+
+          window.history.pushState({}, "", `/${id}`);
+          alert("Paste Transfer: Paste successfully transferred.");
+        });
+    }
+
+    let code = [];
+    let pascode = [16, 17, 16, 16];
+    window.addEventListener("keydown", function (e) {
+      code.push(e.keyCode);
+      if (code.length > pascode.length) code.shift();
+      if (code.length === pascode.length && code.every((v, i) => v === pascode[i])) experimental();
+    });
   </script>
 </html>

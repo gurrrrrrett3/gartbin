@@ -1,5 +1,4 @@
 import { Router } from "express";
-import fs from "fs";
 import path from "path";
 import { db, puppet } from "..";
 import { Paste } from "../database/entities/paste.entity";
