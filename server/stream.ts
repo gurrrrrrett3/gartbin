@@ -1,98 +1,108 @@
-import { Router } from 'express';
-import { db } from '..';
-import { Paste } from '../database/entities/paste.entity';
-import StreamManager from './streamManager';
+import { Router } from "express";
+import { db } from "..";
+import { Paste } from "../database/entities/paste.entity";
+import StreamManager from "./streamManager";
 const router = Router();
 
 const streamManager = new StreamManager();
 
-router.get('/', (req, res) => {
+router.get("/", (req, res) => {
+  const stream = streamManager.createStream();
 
-    const stream = streamManager.createStream();
+  res.json({
+    id: stream.id,
+    chunkSize: StreamManager.STEAM_CHUNK_SIZE,
+    maxChunks: Math.floor(StreamManager.MAX_SIZE / StreamManager.STEAM_CHUNK_SIZE),
+  });
 
-    res.json({
-        id: stream.id,
-        chunkSize: StreamManager.STEAM_CHUNK_SIZE,
-        maxChunks: Math.floor(StreamManager.MAX_SIZE / StreamManager.STEAM_CHUNK_SIZE)
-    })
-
-    console.log("Stream created", stream.id)
-})
+  console.log("Stream created", stream.id);
+});
 
 router.post("/:id", (req, res) => {
-    const id = req.params.id;
+  const id = req.params.id;
 
-    const stream = streamManager.getStream(id);
-    
-    if (!stream) {
-        res.status(404).json({
-            success: false,
-            message: "Stream not found"
-        })
-        return
-    }
+  const stream = streamManager.getStream(id);
 
-    const chunk = req.body.content;
-    const index = req.body.index;
+  if (!stream) {
+    res.status(404).json({
+      success: false,
+      message: "Stream not found",
+    });
+    return;
+  }
 
-    if (chunk.length > StreamManager.STEAM_CHUNK_SIZE) {
-        res.status(400).json({
-            success: false,
-            message: "Chunk too large"
-        })
-        return
-    }
+  const chunk = req.body.content;
+  const index = req.body.index;
 
-    stream.write(chunk, index);
+  if (chunk.length > StreamManager.STEAM_CHUNK_SIZE) {
+    res.status(400).json({
+      success: false,
+      message: "Chunk too large",
+    });
+    return;
+  }
 
-    res.json({
-        success: true,
-        totalSize: stream.chunks.length * StreamManager.STEAM_CHUNK_SIZE,
-    })
+  stream.write(chunk, index);
 
-    console.log("Chunk written", stream.id, stream.chunks.length)
-})
+  res.json({
+    success: true,
+    totalSize: stream.chunks.length * StreamManager.STEAM_CHUNK_SIZE,
+  });
+
+  console.log("Chunk written", stream.id, stream.chunks.length);
+});
 
 router.post("/:id/end", async (req, res) => {
-    const id = req.params.id;
-    
-    const stream = streamManager.getStream(id);
+  const id = req.params.id;
 
-    if (!stream) {
-        res.status(404).json({
-            success: false,
-            message: "Stream not found"
-        })
-        return
-    }
+  const stream = streamManager.getStream(id);
 
-    const content = stream.end();
+  if (!stream) {
+    res.status(404).json({
+      success: false,
+      message: "Stream not found",
+    });
+    return;
+  }
 
-    // create paste
+  const content = stream.end();
 
-    const paste = new Paste();
-    paste.content = content;
-    paste.language = req.body.language;
-    paste.password = req.body.password;
-    paste.expiresAt = new Date(Date.now() + parseInt(req.body.expiration) * 60 * 60 * 1000);
+  // create paste
 
-    res.json({
-        success: true,
-        totalSize: content.length,
-        pasteId: paste.id
-    })
+  const paste = new Paste();
+  paste.content = content;
+  paste.language = req.body.language;
+  paste.password = req.body.password;
 
-    streamManager.deleteStream(id);
+  const expiration = req.body.expiration;
 
-    await db
-    .getEntityManager()
-    .fork()
-    .persistAndFlush(paste)
+  // if the paste has an expiration time, set it
+  if (
+    expiration !== "never" &&
+    expiration !== "" &&
+    expiration !== "0" &&
+    expiration !== undefined &&
+    expiration
+  ) {
+    paste.expiresAt = new Date(Date.now() + parseInt(expiration) * 60 * 60 * 1000);
+  } else {
+    paste.expiresAt = new Date(0);
+  }
 
-    console.log("Stream ended", stream.id, content.length)
-    console.log("Paste created", paste.id)
-})
+  res.json({
+    success: true,
+    totalSize: content.length,
+    pasteId: paste.id,
+  });
 
-router.post
+  streamManager.deleteStream(id);
+
+  await db.getEntityManager().fork().persistAndFlush(paste);
+
+  console.log("Stream ended", stream.id, content.length);
+  console.log("Paste created", paste.id);
+});
+
+router.post;
 
 export default router;

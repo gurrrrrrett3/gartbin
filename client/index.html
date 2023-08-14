@@ -12,24 +12,23 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <title>gartbin - New Paste</title>
 
-        <!-- meta tags for embeds -->
+    <!-- meta tags for embeds -->
 
-        <meta property="og:title" content="gartbin" />
-        <meta property="og:description" content="a simple pastebin" />
-        <meta property="og:image" content="https://bin.gart.sh/thumbnail" />
-        <meta property="og:url" content="https://bin.gart.sh/" />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="gartbin" />
-        <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="gartbin" />
+    <meta property="og:description" content="a simple pastebin" />
+    <meta property="og:image" content="https://bin.gart.sh/thumbnail" />
+    <meta property="og:url" content="https://bin.gart.sh/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="gartbin" />
+    <meta property="og:locale" content="en_US" />
 
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:img:src" content="https://bin.gart.sh/thumbnail" />
-        <meta name="twitter:img:alt" content="gartbin" />
-        <meta name="twitter:image:width" content="1100" />
-        <meta name="twitter:image:height" content="340" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:img:src" content="https://bin.gart.sh/thumbnail" />
+    <meta name="twitter:img:alt" content="gartbin" />
+    <meta name="twitter:image:width" content="1100" />
+    <meta name="twitter:image:height" content="340" />
 
-        <link rel="icon" href="/favicon" />
-
+    <link rel="icon" href="/favicon" />
   </head>
 
   <!-- 
@@ -43,23 +42,28 @@
   <body>
     <div class="header">
       <h1 onclick="main()">gartbin</h1>
-      
-     <!--right alligned links-->
+
+      <!--right alligned links-->
 
       <div class="links">
         <h2 id="copy" hidden>copy</h2>
         <h2 id="clean" hidden>clean</h2>
         <h2 id="raw" hidden>raw</h2>
         <!--open source in new tab-->
-        <h2 id="source"><a href="
+        <h2 id="source">
+          <a
+            href="
           https://gart.sh/gartbin
-        " target="_blank">source</a></h2>
+        "
+            target="_blank"
+            >source</a
+          >
+        </h2>
       </div>
     </div>
 
     <pre id="highlight" class="hljs" style="display: none" tabindex="0"><code></code></pre>
     <textarea spellcheck="false" id="text"></textarea>
-
 
     <div class="settings">
       <div class="language">
@@ -143,7 +147,6 @@
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-
       if (window.location.pathname !== "/") {
         document.querySelector(".settings").style.display = "none";
         document.getElementById("copy").removeAttribute("hidden");
@@ -159,12 +162,11 @@
         fetch(`/api/gart?password=${document.getElementById("password").value}`)
           .then((res) => res.json())
           .then((json) => {
-
             const unescaped = unescapeHtml(json.content);
             const fixedNewlines = unescaped.replace(/\\n/g, "\n");
 
-            textarea.value = fixedNewlines
-            highlight.textContent = fixedNewlines
+            textarea.value = fixedNewlines;
+            highlight.textContent = fixedNewlines;
             highlight.className = `paste hljs language-${json.language}`;
             hljs.highlightElement(highlight);
 
@@ -174,7 +176,7 @@
             document.getElementById("language").value = json.language;
             textarea.className = `paste language-${json.language}`;
           });
-      } 
+      }
 
       textarea.className = `paste language-${document.getElementById("language").value}`;
       textarea.focus();
@@ -197,43 +199,73 @@
       window.location.pathname = "/gart/raw";
     });
 
-    document.getElementById("save").addEventListener("click", function () {
-      highlight.textContent = textarea.value;
-      hljs.highlightElement(highlight);
-
-      textarea.style.display = "none";
-      highlight.style.display = "block";
-
-      // hide settings
-      document.querySelector(".settings").style.display = "none";
+    document.getElementById("save").addEventListener("click", async function () {
+      document.getElementById("save").innerText = "Uploading...";
 
       const language = document.getElementById("language").value;
       const password = document.getElementById("password").value;
       const expiration = document.getElementById("expiration").value;
+      const content = escapeHtml(textarea.value);
 
-      const data = {
-        language,
-        password,
-        expiration,
-        content: escapeHtml(textarea.value),
-      };
+      console.log(content.length);
 
-      fetch("/api/paste", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.error) {
-            alert(data.error);
-            return;
-          }
+      if (content.length > 50000) {
+        // paste is FUCKING MASSIVE
 
-          window.location.href = `/${data.id}`;
+        const id = await createPasteAsStream(content, {
+          language,
+          password,
+          expiration,
+        }).catch((err) => {
+          alert(err);
         });
+
+        window.history.pushState({}, "", `/${id}`);
+
+        highlight.textContent = textarea.value;
+        hljs.highlightElement(highlight);
+
+        textarea.style.display = "none";
+        highlight.style.display = "block";
+
+        // hide settings
+        document.querySelector(".settings").style.display = "none";
+
+        return;
+      } else {
+        const data = {
+          language,
+          password,
+          expiration,
+          content,
+        };
+
+        fetch("/api/paste", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.error) {
+              alert(data.error);
+              return;
+            }
+
+            highlight.textContent = textarea.value;
+            hljs.highlightElement(highlight);
+
+            textarea.style.display = "none";
+            highlight.style.display = "block";
+
+            // hide settings
+            document.querySelector(".settings").style.display = "none";
+
+            window.history.pushState({}, "", `/${data.id}`);
+          });
+      }
     });
 
     function escapeHtml(input) {
@@ -241,13 +273,78 @@
     }
 
     function unescapeHtml(input) {
-      return input.replace(/&amp;/g, "&").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&quot;/g, '"');
+      return input
+        .replace(/&amp;/g, "&")
+        .replace(/&gt;/g, ">")
+        .replace(/&lt;/g, "<")
+        .replace(/&quot;/g, '"');
+    }
+
+    function createPasteAsStream(content, options) {
+      return fetch(`/api/stream`)
+        .then((res) => res.json())
+        .then(async (json) => {
+          const streamId = json.id;
+          const chunkSize = json.chunkSize;
+          const maxChunks = json.maxChunks;
+
+          const chunks = [];
+
+          for (let i = 0; i < content.length; i += chunkSize) {
+            chunks.push(content.slice(i, i + chunkSize));
+          }
+
+          if (chunks.length > maxChunks) {
+            throw new Error("Content is too large");
+          }
+
+          let completed = 0;
+
+          await Promise.all(
+            chunks.map(async (chunk, index) => {
+              await fetch(`/api/stream/${streamId}`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  content: chunk,
+                  index,
+                }),
+              });
+
+              completed++;
+
+              document.getElementById("save").innerText = `Uploading... ${Math.round(
+                (completed / chunks.length) * 100
+              )}%`;
+            })
+          );
+
+          return fetch(`/api/stream/${streamId}/end`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              language: options.language || "plaintext",
+              expiration: options.expiresAt ? options.expiresAt.getTime() : "never",
+              password: options.password,
+            }),
+          })
+            .then((res) => res.json())
+            .then((json) => {
+              if (json.success) {
+                return json.pasteId;
+              }
+            });
+        });
     }
 
     function main() {
-      textarea.innerText = ""
-      highlight.innerText = ""
-      window.location.href = "/"
+      textarea.innerText = "";
+      highlight.innerText = "";
+      window.location.href = "/";
     }
   </script>
 </html>

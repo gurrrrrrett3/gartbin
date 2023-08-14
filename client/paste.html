@@ -203,7 +203,7 @@
       window.location.pathname = "/{{id}}/raw";
     });
 
-    document.getElementById("save").addEventListener("click", function () {
+    document.getElementById("save").addEventListener("click", async function () {
       highlight.textContent = textarea.value;
       hljs.highlightElement(highlight);
 
@@ -216,6 +216,35 @@
       const language = document.getElementById("language").value;
       const password = document.getElementById("password").value;
       const expiration = document.getElementById("expiration").value;
+      const content = escapeHtml(textarea.value);
+
+      console.log(content.length);
+
+      if (content.length > 50000) {
+        // paste is FUCKING MASSIVE
+
+        document.getElementById("save").innerText = "Uploading...";
+
+        const response = await createPasteAsStream(content, {
+          language,
+          password,
+          expiration,
+        })
+          .catch((err) => {
+            alert(err);
+          })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.error) {
+              alert(data.error);
+              return;
+            }
+
+            window.history.pushState({}, "", `/${data.id}`);
+          });
+
+          return
+      } else {
 
       const data = {
         language,
@@ -240,6 +269,7 @@
 
           window.history.pushState({}, "", `/${data.id}`);
         });
+      }
     });
 
     function escapeHtml(input) {
@@ -252,6 +282,55 @@
         .replace(/&gt;/g, ">")
         .replace(/&lt;/g, "<")
         .replace(/&quot;/g, '"');
+    }
+
+    function createPasteAsStream(content, options) {
+      return fetch(`${this.baseUrl}/api/stream`)
+        .then((res) => res.json())
+        .then((json) => {
+          const streamId = json.id;
+          const chunkSize = json.chunkSize;
+          const maxChunks = json.maxChunks;
+
+          const chunks = [];
+
+          for (let i = 0; i < content.length; i += chunkSize) {
+            chunks.push(content.slice(i, i + chunkSize));
+          }
+
+          if (chunks.length > maxChunks) {
+            throw new Error("Content is too large");
+          }
+
+          chunks.forEach(async (chunk, index) => {
+            await fetch(`${this.baseUrl}/api/stream/${streamId}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                content: chunk,
+                index,
+              }),
+            });
+          });
+
+          return fetch(`${this.baseUrl}/api/stream/${streamId}/end`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              language: options.language || "plaintext",
+              expiration: options.expiresAt ? options.expiresAt.getTime() : "never",
+              password: options.password,
+            }),
+          })
+            .then((res) => res.json())
+            .then((json) => {
+              return json.pasteId;
+            });
+        });
     }
 
     function main() {
@@ -275,7 +354,7 @@
       })
         .then((res) => res.json())
         .then((data) => {
-          if (data.success = false) {
+          if ((data.success = false)) {
             alert(data.message);
             return;
           }
