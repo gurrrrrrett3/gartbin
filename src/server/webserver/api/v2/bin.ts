@@ -7,7 +7,7 @@ const router = Router();
 router.post("/", async (req, res) => {
     const { content, language, filename, extension, expiration, password } = req.body as { content: string, filename: string, language: string, extension: string, expiration: string, password: string };
     const session = req.body.session;
-    const id = await BinManager.createBin(content, filename, language, extension, expiration == 'never' ? 'never' : new Date(expiration), password, session.user || undefined);
+    const id = await BinManager.createBin(content, filename, language, extension, expiration == 'never' ? 'never' : new Date(expiration), password, session?.user || undefined);
 
     res.json({
         success: true,
@@ -48,7 +48,7 @@ router.post("/:id", async (req, res) => {
     const { content, language, filename, extension, expiration, password } = req.body as { content: string, filename: string, language: string, extension: string, expiration: string, password: string };
     const id = req.params.id;
     const session = req.body.session;
-    const result = await BinManager.updateBin(id, content, filename, language, extension, expiration == 'never' ? 'never' : new Date(expiration), password, session.user || undefined);
+    const result = await BinManager.updateBin(id, content, filename, language, extension, expiration == 'never' ? 'never' : new Date(expiration), password, session?.user || undefined);
 
     res.status(result.status).json({
         ...result,

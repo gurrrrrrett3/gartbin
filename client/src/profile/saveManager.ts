@@ -1,6 +1,6 @@
 import editor, { setReadOnly } from "../editor/editor";
 import { setLanguage } from "../editor/languageLoader";
-import { fileNameInput, saveButton, statusText } from "../ui/toolbar";
+import { cloneButton, downloadButton, fileNameInput, rawButton, saveButton, statusText } from "../ui/toolbar";
 import Profile from "./profile";
 export default class SaveManager {
 
@@ -31,6 +31,10 @@ export default class SaveManager {
                 setReadOnly(true)
                 saveButton.style.display = 'none'
             }
+
+            rawButton.removeAttribute('hidden')
+            downloadButton.removeAttribute('hidden')
+            cloneButton.removeAttribute('hidden')
 
             SaveManager.hasSaved = true;
             SaveManager.updateUI()
@@ -82,6 +86,10 @@ export default class SaveManager {
                 saveButton.style.backgroundColor = ''
                 saveButton.innerText = 'Save'
             }, 1000)
+
+            rawButton.removeAttribute('hidden')
+            downloadButton.removeAttribute('hidden')
+            cloneButton.removeAttribute('hidden')
 
             SaveManager.updateUI()
         } else {
