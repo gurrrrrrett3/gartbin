@@ -50,6 +50,14 @@ cloneButton.addEventListener('click', () => {
     SaveManager.clone()
 })
 
+rawButton.addEventListener('click', () => {
+    window.location.href = `/${SaveManager.id}/raw`;
+})
+
+downloadButton.addEventListener('click', () => {
+    window.location.href = `/${SaveManager.id}/download`;
+})
+
 const statusText = document.getElementById('status')!;
 
 const fileNameInput = document.getElementById('filename')! as HTMLInputElement;

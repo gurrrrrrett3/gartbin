@@ -58,6 +58,22 @@ app.get("/:id/raw", async (req, res) => {
         .send(bin.content)
 })
 
+app.get("/:id/download", async (req, res) => {
+    const bin = await BinManager.getBin(req.params.id)
+
+    if (!bin) {
+        res.status(404).send(`no bin found with id ${req.params.id}`)
+        return;
+    }
+
+    res
+        .status(200)
+        .setHeader('Content-Type', 'application/octet-stream')
+        .setHeader('Content-Disposition', `attachment; filename="${bin.name}.${bin.extension}"`)
+        .setHeader('Content-Length', bin.content.length.toString())
+        .send(bin.content)
+})
+
 app.get("/:id", (req, res) => {
     res.sendFile(path.resolve('./dist/client/index.html'))
 })
