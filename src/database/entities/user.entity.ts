@@ -1,5 +1,6 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { Entity, PrimaryKey, Property, ManyToOne, OneToMany, Collection } from "@mikro-orm/core";
 import crypto from "crypto";
+import { Bin } from "./bin.entity";
 
 @Entity()
 export default class User {
@@ -13,17 +14,27 @@ export default class User {
     @Property()
     token: string
 
-    @Property()
+    @Property({
+        nullable: true
+    })
     refreshToken?: string
 
     @Property()
     createdAt: Date = new Date()
 
-    @Property()
+    @Property({
+        nullable: true
+    })
     expiresAt?: Date
 
     @Property()
     scopes: string[] = []
+
+    @OneToMany(() => Bin, bin => bin.user)
+    bins = new Collection<Bin>(this)
+
+    @ManyToOne(() => User, { nullable: true })
+    linkedTo?: User
 
     constructor(username: string, displayName: string, token: string, refreshToken?: string, scopes: string[] = [], expiresAt?: Date) {
         this.username = username
@@ -45,7 +56,7 @@ export default class User {
         const hashedPassword = hash.digest("hex")
 
         const user = new User(username, username, hashedPassword)
-        return user   
+        return user
     }
 
     public static fromDiscord(userId: string, username: string, token: string, refreshToken?: string, scopes: string[] = [], expiresAt?: Date) {
@@ -53,13 +64,13 @@ export default class User {
         return user
     }
 
-    public static fromGithub(username: string, token: string, refreshToken?: string, scopes: string[] = [], expiresAt?: Date) {
-        const user = new User(`github:${username}`, username, token, refreshToken, scopes, expiresAt)
+    public static fromGithub(id: number, login: string, token: string, scopes: string[] = [], expiresAt?: Date) {
+        const user = new User(`github:${id}`, login, token, undefined, scopes, expiresAt)
         return user
     }
 
     public static verifyPassword(user: User, password: string) {
-     
+
         const hash = crypto.createHash("sha256")
         hash.update(password)
         const hashedPassword = hash.digest("hex")

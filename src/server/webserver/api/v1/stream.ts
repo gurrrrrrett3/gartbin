@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { db } from "..";
-import { Paste } from "../database/entities/paste.entity";
-import StreamManager from "./streamManager";
+import { db } from "../../../..";
+import { Bin } from "../../../../database/entities/bin.entity";
+import StreamManager from "../../../streamManager";
 const router = Router();
 
 const streamManager = new StreamManager();
@@ -69,7 +69,7 @@ router.post("/:id/end", async (req, res) => {
 
   // create paste
 
-  const paste = new Paste();
+  const paste = new Bin();
   paste.content = content;
   paste.language = req.body.language;
   paste.password = req.body.password;
@@ -84,9 +84,9 @@ router.post("/:id/end", async (req, res) => {
     expiration !== undefined &&
     expiration
   ) {
-    paste.expiresAt = new Date(Date.now() + parseInt(expiration) * 60 * 60 * 1000);
+    paste.expiration = new Date(Date.now() + parseInt(expiration) * 60 * 60 * 1000);
   } else {
-    paste.expiresAt = new Date(0);
+    paste.expiration = new Date(0);
   }
 
   res.json({

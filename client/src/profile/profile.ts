@@ -1,8 +1,8 @@
 export default class Profile {
 
-    public loggedIn: boolean = false;
-    public username: string = "";
-    public displayName: string = "";
+    public static loggedIn: boolean = false;
+    public static username: string = "";
+    public static displayName: string = "";
 
     public static oauthDiscordLogin() {
         window.location.pathname = "/auth/discord"
@@ -27,33 +27,30 @@ export default class Profile {
                 username: string
                 displayName: string
             }
-            error?: string  
+            error?: string
         } = await res.json()
 
         if (json.error) {
             return
         }
 
-        const profile = new Profile()
-        profile.loggedIn = true
-        profile.username = json.user.username
-        profile.displayName = json.user.displayName
-     
+        Profile.loggedIn = true
+        Profile.username = json.user.username
+        Profile.displayName = json.user.displayName
 
-        this.updateUi(profile)
-        
-        return profile
+
+        this.updateUi()
     }
 
-    public static updateUi(profile: Profile) {
+    public static updateUi() {
         const profileText = document.getElementById("profile")!
         const loginButton = document.getElementById("login")!
         const loginGithubButton = document.getElementById("login-github")!
         const loginDiscordButton = document.getElementById("login-discord")!
         const profileLogoutButton = document.getElementById("profile-logout")!
 
-        if (profile.loggedIn) {
-            profileText.innerText = profile.displayName
+        if (Profile.loggedIn) {
+            profileText.innerText = Profile.displayName
             loginButton.setAttribute("hidden", "true")
             loginGithubButton.setAttribute("hidden", "true")
             loginDiscordButton.setAttribute("hidden", "true")

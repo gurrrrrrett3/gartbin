@@ -23,12 +23,15 @@ export function loadLanguages() {
         })
 
 }
-export async function setLanguage(lang: string, value?: string, editorObject = editor) {
+
+export async function setLanguage(lang: string, value?: string, save: boolean = true, editorObject = editor) {
     const langSelect = document.getElementById('lang')! as HTMLSelectElement;
     // const langIcon = document.getElementById('langIcon')! as HTMLImageElement;
 
     langSelect.value = lang;
-    localStorage.setItem('lang', lang);
+    if (save) {
+        localStorage.setItem('lang', lang);
+    }
 
     const newValue = value || editorObject.getValue();
     editorObject.getModel()?.dispose();
@@ -47,10 +50,13 @@ export async function setLanguage(lang: string, value?: string, editorObject = e
     if (!SaveManager.hasSaved) {
         const fileNameInput = document.getElementById('filename')! as HTMLInputElement;
         const fileName = SaveManager.fileName || 'untitled';
-        
+
         fileNameInput.value = `${fileName}${langData?.extensions![0]}`
 
     }
+
+    SaveManager.language = lang;
+    SaveManager.fileExtension = langData?.extensions![0] || 'txt';
 
     return langData;
 }

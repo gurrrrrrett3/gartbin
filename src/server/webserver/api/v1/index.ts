@@ -1,7 +1,7 @@
 import { Router } from "express";
 import path from "path";
-import { db, } from "..";
-import { Paste } from "../database/entities/paste.entity";
+import { db, } from "../../../..";
+import { Bin } from "../../../../database/entities/bin.entity";
 
 import StreamRouter from "./stream";
 
@@ -10,16 +10,17 @@ const router = Router();
 router.use("/stream", StreamRouter);
 
 router.get("/", (req, res) => {
-  res.sendFile(path.resolve("./client/api.html"));
+  res.json({
+    version: 1
+  })
 });
 
 router.post("/paste", async (req, res) => {
-  const { content, language, expiration, password, allowUpdate } = req.body as {
+  const { content, language, expiration, password } = req.body as {
     content: string; // content of the paste
     language: string; // language of the paste
     expiration: string; // time in hours until the paste expires, or "never"
     password?: string; // password to access the paste
-    allowUpdate?: boolean; // allow the paste to be updated
   };
 
   // generate a random id for the paste
@@ -28,12 +29,11 @@ router.post("/paste", async (req, res) => {
   console.log(expiration);
 
   // create a new paste entity
-  const paste = new Paste();
+  const paste = new Bin();
   paste.id = id;
   paste.content = content;
   paste.language = language;
   paste.password = password;
-  paste.allowUpdate = allowUpdate;
 
   // if the paste has an expiration time, set it
   if (
@@ -43,9 +43,9 @@ router.post("/paste", async (req, res) => {
     expiration !== undefined &&
     expiration
   ) {
-    paste.expiresAt = new Date(Date.now() + parseInt(expiration) * 60 * 60 * 1000);
+    paste.expiration = new Date(Date.now() + parseInt(expiration) * 60 * 60 * 1000);
   } else {
-    paste.expiresAt = new Date(0);
+    paste.expiration = new Date(0);
   }
 
   console.log(paste);
@@ -77,7 +77,7 @@ router.post("/paste/:id/update", async (req, res) => {
   // get the paste from the database
   const paste = await db
     .em
-    .findOne(Paste, { id })
+    .findOne(Bin, { id })
     .catch((err) => {
       console.log(err);
       res.status(500).json({
@@ -94,13 +94,6 @@ router.post("/paste/:id/update", async (req, res) => {
     return;
   }
 
-  if (!paste.allowUpdate) {
-    res.status(403).json({
-      success: false,
-      message: "Paste does not allow updates",
-    });
-    return;
-  }
 
   if (paste.password && paste.password !== password) {
     res.status(403).json({
@@ -134,7 +127,7 @@ router.get("/:id", (req, res) => {
 
   // get the paste from the database
   db.em
-    .findOne(Paste, { id })
+    .findOne(Bin, { id })
     .then((paste) => {
       if (!paste) {
         res.status(404).json({
@@ -143,9 +136,9 @@ router.get("/:id", (req, res) => {
         });
         return;
       } else if (
-        paste.expiresAt &&
-        paste.expiresAt.getTime() < Date.now() &&
-        paste.expiresAt.getTime() !== 0
+        paste.expiration &&
+        paste.expiration.getTime() < Date.now() &&
+        paste.expiration.getTime() !== 0
       ) {
         res.status(404).json({
           success: false,

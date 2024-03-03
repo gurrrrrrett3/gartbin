@@ -10,35 +10,35 @@
   <body>
     <div class="header">
       <div class="buttons">
-        <h2>gartbin</h2>
-
+        <h2 id="title">gartbin</h2>
       </div>
     </div>
     <div id="code" class="container"></div>
     <div id="toolbar" class="toolbar">
       <div class="toolbar-left">
-        <select id="lang" class="select">
-
-        </select>
+        <select id="lang" class="select"></select>
 
         <button id="save">Save</button>
         <button id="copy">Copy</button>
+        <button id="clone">Clone</button>
+        <button id="new">New</button>
+        <button id="download">Download</button>
         <button id="raw">View Raw</button>
-
       </div>
       <div class="toolbar-right">
+        <a id="status" class="status">New bin - Unsaved</a>
         <input type="text" id="filename" placeholder="filename" />
-        
+
         <div class="dropup" id="dropup">
-            <span id="profileIcon">👤</span>
-            <span id="profile">Not logged in</span>
-            <div class="dropup-content">
-                <button id="login">Login</button>
-                <button id="login-github">Login with Github</button>
-                <button id="login-discord">Login with Discord</button>
-                <button id="profile-logout" hidden>Logout</button>
-                <button id="profile-settings" hidden>Settings</button>
-            </div>
+          <span id="profileIcon">👤</span>
+          <span id="profile">Not logged in</span>
+          <div class="dropup-content">
+            <button id="login" hidden>Login</button>
+            <button id="login-github">Login with Github</button>
+            <button id="login-discord">Login with Discord</button>
+            <button id="profile-logout" hidden>Logout</button>
+            <button id="profile-settings" hidden>Settings</button>
+          </div>
         </div>
       </div>
     </div>

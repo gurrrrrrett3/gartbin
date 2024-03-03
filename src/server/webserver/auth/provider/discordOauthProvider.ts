@@ -20,15 +20,15 @@ export default class DiscordOauthProvider extends oAuthProvider {
         return url.toString()
     }
 
-    public async handleCallback(req: Request, res: Response) { 
+    public async handleCallback(req: Request, res: Response) {
         const code = req.query.code as string
         const state = req.query.state as string
-     
+
         if (!code || !state) {
             res.status(400).send("Missing code or state")
             return
         }
-        
+
         if (!this.isValidState(state)) {
             res.status(400).send("Invalid state")
             return
@@ -48,11 +48,11 @@ export default class DiscordOauthProvider extends oAuthProvider {
             res.status(400).send("Invalid token")
             return
         }
-    
+
         let userEntity = await db.em.findOne(User, { username: `discord:${user.id}` })
-        
+
         if (!userEntity) {
-            const userEntity = User.fromDiscord(user.id, user.username, token.access_token, token.refresh_token, ["identify"], new Date(Date.now() + token.expires_in * 1000))
+            userEntity = User.fromDiscord(user.id, user.username, token.access_token, token.refresh_token, ["identify"], new Date(Date.now() + token.expires_in * 1000))
             await db.em.persistAndFlush(userEntity)
         } else {
             userEntity.token = token.access_token

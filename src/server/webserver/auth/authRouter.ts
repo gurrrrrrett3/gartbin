@@ -14,6 +14,14 @@ router.get("/discord/callback", (req, res) => {
     discordOauth.handleCallback(req, res)
 })
 
+router.get("/github", (req, res) => {
+    res.redirect(gitHubOauth.generateOauthUrl())
+})
+
+router.get("/github/callback", (req, res) => {
+    gitHubOauth.handleCallback(req, res)
+})
+
 router.get("/logout", (req, res) => {
     res.clearCookie("session")
     res.redirect("/")
