@@ -24,6 +24,7 @@ langSelect.addEventListener('change', () => {
 });
 
 const saveButton = document.getElementById('save')!;
+const saveAnonButton = document.getElementById('save-anon')!;
 const newButton = document.getElementById('new')!;
 const copyButton = document.getElementById('copy')!;
 const cloneButton = document.getElementById('clone')!;
@@ -40,6 +41,10 @@ copyButton.addEventListener('click', () => {
 
 saveButton.addEventListener('click', () => {
     SaveManager.save()
+})
+
+saveAnonButton.addEventListener('click', () => {
+    SaveManager.save(true)
 })
 
 newButton.addEventListener('click', () => {
@@ -78,6 +83,7 @@ profileLogoutButton.addEventListener("click", Profile.logout)
 
 export {
     saveButton,
+    saveAnonButton,
     newButton,
     copyButton,
     cloneButton,

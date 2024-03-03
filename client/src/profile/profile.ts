@@ -1,3 +1,6 @@
+import { saveAnonButton } from "../ui/toolbar";
+import SaveManager from "./saveManager";
+
 export default class Profile {
 
     public static loggedIn: boolean = false;
@@ -61,6 +64,8 @@ export default class Profile {
             loginDiscordButton.removeAttribute("hidden")
             loginButton.removeAttribute("hidden")
             profileLogoutButton.setAttribute("hidden", "true")
+
+            saveAnonButton.setAttribute("hidden", "true")
         }
     }
 

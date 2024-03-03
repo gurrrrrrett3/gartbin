@@ -1,6 +1,6 @@
 import editor, { setReadOnly } from "../editor/editor";
 import { setLanguage } from "../editor/languageLoader";
-import { cloneButton, downloadButton, fileNameInput, rawButton, saveButton, statusText } from "../ui/toolbar";
+import { cloneButton, downloadButton, fileNameInput, rawButton, saveAnonButton, saveButton, statusText } from "../ui/toolbar";
 import Profile from "./profile";
 export default class SaveManager {
 
@@ -30,6 +30,7 @@ export default class SaveManager {
             if (this.isReadOnly) {
                 setReadOnly(true)
                 saveButton.style.display = 'none'
+                saveAnonButton.style.display = 'none'
             }
 
             rawButton.removeAttribute('hidden')
@@ -46,7 +47,7 @@ export default class SaveManager {
         }
     }
 
-    public static async save() {
+    public static async save(anon: boolean = false) {
         const res = await fetch(`/api/v2/bin${this.id ? `/${this.id}` : ""}`, {
             method: 'POST',
             headers: {
@@ -58,7 +59,8 @@ export default class SaveManager {
                 language: SaveManager.language,
                 extension: SaveManager.fileExtension,
                 expiration: 'never',
-                password: ''
+                password: '',
+                anon
             })
         })
 
