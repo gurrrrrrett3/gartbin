@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import monacoEditorPlugin from 'vite-plugin-monaco-editor'
+import path from 'path'
 
 export default defineConfig({
     root: './client',
@@ -19,12 +20,9 @@ export default defineConfig({
         }
     },
     plugins: [monacoEditorPlugin({
-        languageWorkers: [
-            'css',
-            'html',
-            'json',
-            'typescript',
-            'editorWorkerService',
-        ]
+        publicPath: 'static/worker',
+        customDistPath(root, buildOutDir, base) {
+            return path.resolve(root, buildOutDir, "static/worker/")
+        }
     })],
 })
