@@ -2,349 +2,49 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/tokyo-night-dark.min.css"
-    />
-    <link rel="stylesheet" href="style.css" />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <title>gartbin - New Paste</title>
-
-    <!-- meta tags for embeds -->
-
-    <meta property="og:title" content="gartbin" />
-    <meta property="og:description" content="a simple pastebin" />
-    <meta property="og:image" content="https://bin.gart.sh/thumbnail" />
-    <meta property="og:url" content="https://bin.gart.sh/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="gartbin" />
-    <meta property="og:locale" content="en_US" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:img:src" content="https://bin.gart.sh/thumbnail" />
-    <meta name="twitter:img:alt" content="gartbin" />
-    <meta name="twitter:image:width" content="1100" />
-    <meta name="twitter:image:height" content="340" />
-
-    <link rel="icon" href="/favicon" />
+    <script src="./src/index.ts" type="module" defer></script>
+    <link rel="stylesheet" href="./assets/index.css" />
+    <link rel="icon" href="./assets/favicon.ico" />
+    <meta name="author" content="gartbin" />
+    <meta name="description" content="simple code sharing" />
+    <meta name="keywords" content="code, sharing, paste, bin, gartbin" />
+    <title>gartbin</title>
   </head>
-
-  <!-- 
-    
-    Application design based off Hastebin https://github.com/toptal/haste-server/
-
-    way better paste bin than mine, use it instead
-
--->
-
   <body>
     <div class="header">
-      <h1 onclick="main()">gartbin</h1>
-
-      <!--right alligned links-->
-
-      <div class="links">
-        <h2 id="copy" hidden>copy</h2>
-        <h2 id="clean" hidden>clean</h2>
-        <h2 id="raw" hidden>raw</h2>
-        <!--open source in new tab-->
-        <h2 id="source">
-          <a
-            href="
-          https://gart.sh/gartbin
-        "
-            target="_blank"
-            >source</a
-          >
-        </h2>
+      <div class="buttons">
+        <h2 id="title">gartbin</h2>
       </div>
     </div>
+    <div id="code" class="container"></div>
+    <div id="toolbar" class="toolbar">
+      <div class="toolbar-left">
+        <select id="lang" class="select"></select>
 
-    <pre id="highlight" class="hljs" style="display: none" tabindex="0"><code></code></pre>
-    <textarea spellcheck="false" id="text"></textarea>
-
-    <div class="settings">
-      <div class="language">
-        <label for="language">Language</label>
-        <select name="language" id="language">
-          <option value="plaintext" selected>plaintext</option>
-          <option value="javascript">javascript</option>
-          <option value="typescript">typescript</option>
-          <option value="json">json</option>
-          <option value="python">python</option>
-          <option value="java">java</option>
-          <option value="c">c</option>
-          <option value="cpp">cpp</option>
-          <option value="csharp">csharp</option>
-          <option value="css">css</option>
-          <option value="html">html</option>
-          <option value="markdown">markdown</option>
-          <option value="php">php</option>
-          <option value="ruby">ruby</option>
-          <option value="sql">sql</option>
-          <option value="xml">xml</option>
-          <option value="bash">bash</option>
-          <option value="go">go</option>
-          <option value="kotlin">kotlin</option>
-          <option value="lua">lua</option>
-          <option value="perl">perl</option>
-          <option value="powershell">powershell</option>
-          <option value="rust">rust</option>
-          <option value="swift">swift</option>
-          <option value="diff">diff</option>
-          <option value="dockerfile">dockerfile</option>
-          <option value="ini">ini</option>
-          <option value="makefile">makefile</option>
-          <option value="nginx">nginx</option>
-          <option value="yaml">yaml</option>
-          <option value="apache">apache</option>
-          <option value="coffeescript">coffeescript</option>
-          <option value="cs">cs</option>
-          <option value="dart">dart</option>
-          <option value="elixir">elixir</option>
-          <option value="erlang">erlang</option>
-          <option value="haskell">haskell</option>
-          <option value="http">http</option>
-          <option value="less">less</option>
-          <option value="lisp">lisp</option>
-        </select>
+        <button id="save">Save</button>
+        <button id="copy">Copy</button>
+        <button id="new">New</button>
+        <button id="clone" hidden>Clone</button>
+        <button id="download" hidden>Download</button>
+        <button id="raw" hidden>View Raw</button>
       </div>
+      <div class="toolbar-right">
+        <a id="status" class="status">New bin - Unsaved</a>
+        <input type="text" id="filename" placeholder="filename" />
 
-      <div class="password">
-        <label for="password">Password</label>
-        <input type="text" name="password" id="password" />
-      </div>
-
-      <div class="expiration">
-        <label for="expiration">Expiration</label>
-        <select name="expiration" id="expiration">
-          <option value="never" selected>never</option>
-          <option value="1">1 hour</option>
-          <option value="24">1 day</option>
-          <option value="168">1 week</option>
-          <option value="236">2 weeks</option>
-          <option value="720">1 month</option>
-          <option value="2160">3 months</option>
-          <option value="4320">6 months</option>
-          <option value="8760">1 year</option>
-        </select>
-      </div>
-
-      <div class="submit">
-        <button type="submit" id="save">Create Paste</button>
+        <div class="dropup" id="dropup">
+          <span id="profileIcon">👤</span>
+          <span id="profile">Not logged in</span>
+          <div class="dropup-content">
+            <button id="login" hidden>Login</button>
+            <button id="login-github">Login with Github</button>
+            <button id="login-discord">Login with Discord</button>
+            <button id="profile-logout" hidden>Logout</button>
+            <button id="profile-settings" hidden>Settings</button>
+          </div>
+        </div>
       </div>
     </div>
   </body>
-
-  <script>
-    const textarea = document.getElementById("text");
-    const highlight = document.getElementById("highlight");
-
-    document.getElementById("language").addEventListener("change", function () {
-      textarea.className = `paste language-${this.value}`;
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-      if (window.location.pathname !== "/") {
-        document.querySelector(".settings").style.display = "none";
-        document.getElementById("copy").removeAttribute("hidden");
-        document.getElementById("clean").removeAttribute("hidden");
-        document.getElementById("raw").removeAttribute("hidden");
-
-        // password is in query string
-        if (window.location.search) {
-          const password = window.location.search.split("=")[1];
-          document.getElementById("password").value = password;
-        }
-        // get paste
-        fetch(`/api/gart?password=${document.getElementById("password").value}`)
-          .then((res) => res.json())
-          .then((json) => {
-            const unescaped = unescapeHtml(json.content);
-            const fixedNewlines = unescaped.replace(/\\n/g, "\n");
-
-            textarea.value = fixedNewlines;
-            highlight.textContent = fixedNewlines;
-            highlight.className = `paste hljs language-${json.language}`;
-            hljs.highlightElement(highlight);
-
-            textarea.style.display = "none";
-            highlight.style.display = "block";
-
-            document.getElementById("language").value = json.language;
-            textarea.className = `paste language-${json.language}`;
-          });
-      }
-
-      textarea.className = `paste language-${document.getElementById("language").value}`;
-      textarea.focus();
-    });
-
-    document.getElementById("copy").addEventListener("click", function () {
-      navigator.clipboard.writeText(textarea.innerText);
-
-      this.innerText = "copied!";
-      setTimeout(() => {
-        this.innerText = "copy";
-      }, 1000);
-    });
-
-    document.getElementById("clean").addEventListener("click", function () {
-      window.location.pathname = "/gart/clean";
-    });
-
-    document.getElementById("raw").addEventListener("click", function () {
-      window.location.pathname = "/gart/raw";
-    });
-
-    document.getElementById("save").addEventListener("click", async function () {
-      document.getElementById("save").innerText = "Uploading...";
-
-      const language = document.getElementById("language").value;
-      const password = document.getElementById("password").value;
-      const expiration = document.getElementById("expiration").value;
-      const content = escapeHtml(textarea.value);
-
-      console.log(content.length);
-
-      if (content.length > 50000) {
-        // paste is FUCKING MASSIVE
-
-        const id = await createPasteAsStream(content, {
-          language,
-          password,
-          expiration,
-        }).catch((err) => {
-          alert(err);
-        });
-
-        window.history.pushState({}, "", `/${id}`);
-
-        highlight.textContent = textarea.value;
-        hljs.highlightElement(highlight);
-
-        textarea.style.display = "none";
-        highlight.style.display = "block";
-
-        // hide settings
-        document.querySelector(".settings").style.display = "none";
-
-        return;
-      } else {
-        const data = {
-          language,
-          password,
-          expiration,
-          content,
-        };
-
-        fetch("/api/paste", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.error) {
-              alert(data.error);
-              return;
-            }
-
-            highlight.textContent = textarea.value;
-            hljs.highlightElement(highlight);
-
-            textarea.style.display = "none";
-            highlight.style.display = "block";
-
-            // hide settings
-            document.querySelector(".settings").style.display = "none";
-
-            window.history.pushState({}, "", `/${data.id}`);
-          });
-      }
-    });
-
-    function escapeHtml(input) {
-      return input.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
-    }
-
-    function unescapeHtml(input) {
-      return input
-        .replace(/&amp;/g, "&")
-        .replace(/&gt;/g, ">")
-        .replace(/&lt;/g, "<")
-        .replace(/&quot;/g, '"');
-    }
-
-    function createPasteAsStream(content, options) {
-      return fetch(`/api/stream`)
-        .then((res) => res.json())
-        .then(async (json) => {
-          const streamId = json.id;
-          const chunkSize = json.chunkSize;
-          const maxChunks = json.maxChunks;
-
-          const chunks = [];
-
-          for (let i = 0; i < content.length; i += chunkSize) {
-            chunks.push(content.slice(i, i + chunkSize));
-          }
-
-          if (chunks.length > maxChunks) {
-            throw new Error("Content is too large");
-          }
-
-          let completed = 0;
-
-          await Promise.all(
-            chunks.map(async (chunk, index) => {
-              await fetch(`/api/stream/${streamId}`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  content: chunk,
-                  index,
-                }),
-              });
-
-              completed++;
-
-              document.getElementById("save").innerText = `Uploading... ${Math.round(
-                (completed / chunks.length) * 100
-              )}%`;
-            })
-          );
-
-          return fetch(`/api/stream/${streamId}/end`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              language: options.language || "plaintext",
-              expiration: options.expiresAt ? options.expiresAt.getTime() : "never",
-              password: options.password,
-            }),
-          })
-            .then((res) => res.json())
-            .then((json) => {
-              if (json.success) {
-                return json.pasteId;
-              }
-            });
-        });
-    }
-
-    function main() {
-      textarea.innerText = "";
-      highlight.innerText = "";
-      window.location.href = "/";
-    }
-  </script>
 </html>
