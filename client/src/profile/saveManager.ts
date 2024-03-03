@@ -67,6 +67,7 @@ export default class SaveManager {
         if (res.ok) {
             const json = await res.json()
             SaveManager.hasSaved = true;
+            saveAnonButton.style.display = 'none'
 
             if (!this.id) {
                 this.id = json.id
