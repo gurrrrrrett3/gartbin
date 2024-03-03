@@ -1,16 +1,6 @@
 import * as monaco from 'monaco-editor';
 import editor from "./editor";
-
-editor.addAction({
-    id: 'login',
-    label: 'gartbin: Login',
-    keybindings: [
-        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyL,
-    ],
-    run(editor, ...args) {
-        console.log('login');
-    },
-})
+import SaveManager from '../profile/saveManager';
 
 editor.addAction({
     id: 'save',
@@ -19,7 +9,7 @@ editor.addAction({
         monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
     ],
     run(editor, ...args) {
-        console.log('save');
+        SaveManager.save()
     },
 })
 
