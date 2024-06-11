@@ -30,8 +30,9 @@ export default class SaveManager {
             if (this.isReadOnly) {
                 setReadOnly(true)
                 saveButton.style.display = 'none'
-                saveAnonButton.style.display = 'none'
             }
+
+            saveAnonButton.style.display = 'none'
 
             rawButton.removeAttribute('hidden')
             downloadButton.removeAttribute('hidden')

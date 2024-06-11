@@ -40,7 +40,10 @@ router.get("/:id", async (req, res) => {
         expiration: bin.expiration,
         language: bin.language,
         isEditable: bin.user && session && bin.user.username === (await UserManager.getRootUser(session.user))?.username || false,
-        owner: bin.user
+        owner: bin.user ? {
+            username: bin.user.username,
+            displayName: bin.user.displayName,
+        } : undefined
     });
 });
 
