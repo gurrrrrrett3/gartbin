@@ -1,2 +1,2 @@
 # gartbin
-A pasting server, using postgresql and express
+pastebin clone, using postgresql and express 
